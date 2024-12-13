@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+// const apiUrl = `${import.meta.env.API}`;
 const apiUrl = "http://localhost:5000";
 
 // Setea el estado de usuario cuando hacen login o logout

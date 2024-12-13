@@ -1,15 +1,15 @@
 import { useState } from "react";
 import Button from "./Button";
 import InputField from "./InputField";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { fetchUserLogin } from "../../../Redux/Slices/LoginSlice";
+import { validateLoginForm } from "./ValidateForm";
 
-// Formulario de Login
 const LoginForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.userLogin.user);
+  // const user = useSelector((state) => state.userLogin.user);
 
   const [formValues, setFormValues] = useState({
     email: "",
@@ -27,31 +27,20 @@ const LoginForm = () => {
     }));
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formValues.email) newErrors.email = "El email es requerido";
-    else if (!/\S+@\S+\.\S+/.test(formValues.email))
-      newErrors.email = "Email inválido";
-
-    if (!formValues.password) newErrors.password = "La contraseña es requerida";
-    else if (formValues.password.length < 6)
-      newErrors.password = "La contraseña debe tener al menos 6 caracteres";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    if (validateForm()) {
-      // Simular llamada asíncrona para login
+    const validationErrors = validateLoginForm(formValues);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
       const result = await dispatch(fetchUserLogin(formValues));
+      setIsSubmitting(false); // Restaura el estado del botón
       if (result.access) {
-        console.log("Login exitoso");
-        console.log("Aqui el user", user);
         navigate("/");
+      } else {
+        alert("Datos incorrectos, por favor verifica tu información."); // Puedes reemplazar con un modal si prefieres
       }
     } else {
       setIsSubmitting(false);
@@ -63,7 +52,7 @@ const LoginForm = () => {
   };
 
   const handleRegisterRedirect = () => {
-    console.log("Redirigiendo a registro");
+    navigate("/register");
   };
 
   return (
